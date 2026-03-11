@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="page-title">Destination — Wanderlust India</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/destination.css" />
+    <link rel="stylesheet" href="css/chatbot.css" />
+</head>
+
+<body class="dark-body">
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="home.html" class="nav-brand">✈️ Wanderlust India</a>
+            <div class="nav-actions">
+                <a href="home.html" class="nav-link">← Back to Explore</a>
+                <a href="wishlist.html" class="nav-btn wishlist-btn">❤️ <span class="badge"
+                        id="wishlist-badge">0</span></a>
+                <div class="user-avatar-wrap" onclick="toggleUserMenu()">
+                    <div class="user-avatar" id="user-avatar">U</div>
+                    <div class="user-menu hidden" id="user-menu">
+                        <div class="user-name" id="user-menu-name">User</div>
+                        <hr />
+                        <a href="wishlist.html">❤️ My Wishlist</a>
+                        <button onclick="logout()">🚪 Logout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO IMAGE -->
+    <div class="dest-hero" id="dest-hero">
+        <div class="dest-hero-overlay">
+            <div class="dest-breadcrumb" id="dest-breadcrumb">India &rsaquo; <span id="state-crumb"></span></div>
+            <h1 class="dest-hero-name" id="dest-name">Loading...</h1>
+            <div class="dest-hero-tags" id="dest-seasons"></div>
+        </div>
+    </div>
+
+    <!-- QUICK STATS -->
+    <div class="dest-stats-bar">
+        <div class="dest-stat">
+            <span class="stat-icon">💰</span>
+            <div><span class="stat-label">Avg Cost (2D/1N)</span><span class="stat-value" id="stat-cost">—</span></div>
+        </div>
+        <div class="dest-stat">
+            <span class="stat-icon">🎯</span>
+            <div><span class="stat-label">Experience</span><span class="stat-value" id="stat-exp">—</span></div>
+        </div>
+        <div class="dest-stat">
+            <span class="stat-icon">📍</span>
+            <div><span class="stat-label">State</span><span class="stat-value" id="stat-state">—</span></div>
+        </div>
+        <div class="dest-stat">
+            <span class="stat-icon">⭐</span>
+            <div><span class="stat-label">Popularity</span><span class="stat-value" id="stat-pop">—</span></div>
+        </div>
+        <button class="wishlist-toggle-btn" id="wishlist-toggle-btn" onclick="toggleWishlist()">
+            <span id="wl-icon">♡</span> Save
+        </button>
+    </div>
+
+    <!-- DETAIL CONTENT -->
+    <main class="dest-content">
+
+        <!-- Tab Nav -->
+        <div class="detail-tabs">
+            <button class="detail-tab active" onclick="switchDetailTab('about', this)">📖 About</button>
+            <button class="detail-tab" onclick="switchDetailTab('food', this)">🍽️ Local Food</button>
+            <button class="detail-tab" onclick="switchDetailTab('nearby', this)">📍 Nearby</button>
+            <button class="detail-tab" onclick="switchDetailTab('season', this)">🌤️ Best Season</button>
+        </div>
+
+        <!-- Tab: About -->
+        <div class="tab-panel active" id="tab-about">
+            <p class="dest-description" id="dest-description">Loading...</p>
+        </div>
+
+        <!-- Tab: Food -->
+        <div class="tab-panel hidden" id="tab-food">
+            <h3 class="section-h3">🍽️ Must-Try Local Food</h3>
+            <div class="food-grid" id="food-grid"></div>
+        </div>
+
+        <!-- Tab: Nearby -->
+        <div class="tab-panel hidden" id="tab-nearby">
+            <h3 class="section-h3">📍 Nearby Attractions</h3>
+            <div class="nearby-list" id="nearby-list"></div>
+        </div>
+
+        <!-- Tab: Season -->
+        <div class="tab-panel hidden" id="tab-season">
+            <h3 class="section-h3">🌤️ Seasonal Suitability</h3>
+            <div class="season-grid" id="season-suitability"></div>
+        </div>
+
+        <!-- Related Destinations -->
+        <section class="related-section">
+            <h2 class="section-title">More from <span id="related-state-name">this state</span></h2>
+            <div class="related-grid" id="related-grid"></div>
+        </section>
+
+    </main>
+
+    <!-- Chatbot -->
+    <div class="chatbot-fab" id="chatbot-fab" onclick="toggleChatbot()">
+        <span class="fab-icon">🤖</span><span class="fab-pulse"></span>
+    </div>
+    <div class="chatbot-panel hidden" id="chatbot-panel">
+        <div class="chatbot-header">
+            <div class="chatbot-title"><span class="chatbot-avatar">🤖</span>
+                <div><strong>Travel AI</strong><span class="chatbot-status">Online</span></div>
+            </div>
+            <button class="chatbot-close" onclick="toggleChatbot()">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="msg-ai"><span class="msg-avatar">🤖</span>
+                <div class="msg-bubble">Ask me anything about this destination or any place in India! 🌏</div>
+            </div>
+        </div>
+        <div class="chatbot-typing hidden" id="chatbot-typing"><span class="typing-dot"></span><span
+                class="typing-dot"></span><span class="typing-dot"></span></div>
+        <div class="chatbot-input-row">
+            <input type="text" id="chatbot-input" placeholder="Ask about this destination..."
+                onkeydown="if(event.key==='Enter') sendChat()" />
+            <button class="chat-send-btn" onclick="sendChat()">➤</button>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/destination.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+
+</html>
