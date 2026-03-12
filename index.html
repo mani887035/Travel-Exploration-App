@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Explore India — Wanderlust India</title>
+    <meta name="description"
+        content="Explore 200+ Indian tourist destinations filtered by season, state, and travel experience. Save your favourites and chat with our AI travel assistant." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <link rel="stylesheet" href="css/chatbot.css" />
+</head>
+
+<body class="dark-body">
+
+    <!-- NAV -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">✈️ Wanderlust India</a>
+            <div class="nav-search">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Search destinations, states..."
+                    oninput="debounceSearch(this.value)" />
+                <div class="search-results hidden" id="search-results"></div>
+            </div>
+            <div class="nav-actions">
+                <a href="wishlist.html" class="nav-btn wishlist-btn" title="My Wishlist">
+                    ❤️ <span class="badge" id="wishlist-badge">0</span>
+                </a>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <section class="hero-section">
+        <div class="hero-slider" id="hero-slider">
+            <!-- Populated by JS -->
+        </div>
+        <div class="hero-overlay">
+            <h1 class="hero-title" id="hero-title">Discover India</h1>
+            <p class="hero-sub" id="hero-sub">Explore breathtaking destinations curated by season</p>
+            <div class="hero-dots" id="hero-dots"></div>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- Season Filter -->
+        <section class="section-header">
+            <h2 class="section-title">Explore by Season</h2>
+            <div class="season-tabs" id="season-tabs">
+                <button class="season-tab active" data-season="" onclick="filterSeason(this, '')">🌍 All</button>
+                <button class="season-tab" data-season="SUMMER" onclick="filterSeason(this, 'SUMMER')">🌞
+                    Summer</button>
+                <button class="season-tab" data-season="WINTER" onclick="filterSeason(this, 'WINTER')">❄️
+                    Winter</button>
+                <button class="season-tab" data-season="MONSOON" onclick="filterSeason(this, 'MONSOON')">🌧️
+                    Monsoon</button>
+                <button class="season-tab" data-season="ALL_SEASON" onclick="filterSeason(this, 'ALL_SEASON')">✨ All
+                    Season</button>
+            </div>
+        </section>
+
+        <!-- State Filter -->
+        <div class="filter-bar">
+            <select class="state-select" id="state-select" onchange="filterState(this.value)">
+                <option value="">All States</option>
+            </select>
+            <span class="results-count" id="results-count">Loading destinations...</span>
+        </div>
+
+        <!-- Destinations Grid -->
+        <div class="destinations-grid" id="destinations-grid">
+            <!-- skeleton loaders -->
+            <div class="dest-card skeleton"></div>
+            <div class="dest-card skeleton"></div>
+            <div class="dest-card skeleton"></div>
+            <div class="dest-card skeleton"></div>
+            <div class="dest-card skeleton"></div>
+            <div class="dest-card skeleton"></div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+
+    </main>
+
+    <!-- CHATBOT WIDGET -->
+    <div class="chatbot-fab" id="chatbot-fab" onclick="toggleChatbot()" title="AI Travel Assistant">
+        <span class="fab-icon">🤖</span>
+        <span class="fab-pulse"></span>
+    </div>
+
+    <div class="chatbot-panel hidden" id="chatbot-panel">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <span class="chatbot-avatar">🤖</span>
+                <div>
+                    <strong>Travel AI</strong>
+                    <span class="chatbot-status">Online · Powered by Gemini</span>
+                </div>
+            </div>
+            <button class="chatbot-close" onclick="toggleChatbot()">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="msg-ai">
+                <span class="msg-avatar">🤖</span>
+                <div class="msg-bubble">
+                    Namaste! 🙏 I'm your AI travel guide for India. Ask me about the best places to visit, seasonal
+                    recommendations, costs, local food, or anything about our destinations!
+                </div>
+            </div>
+            <div class="chat-suggestions" id="chat-suggestions">
+                <button onclick="askSuggestion('Best places to visit in winter?')">❄️ Best in Winter?</button>
+                <button onclick="askSuggestion('Cheap budget destinations in India?')">💰 Budget Trips?</button>
+                <button onclick="askSuggestion('Best hill stations in India?')">🏔️ Hill Stations?</button>
+                <button onclick="askSuggestion('Where to go during monsoon?')">🌧️ Monsoon Picks?</button>
+            </div>
+        </div>
+        <div class="chatbot-typing hidden" id="chatbot-typing">
+            <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+        </div>
+        <div class="chatbot-input-row">
+            <input type="text" id="chatbot-input" placeholder="Ask about any Indian destination..."
+                onkeydown="if(event.key==='Enter') sendChat()" />
+            <button class="chat-send-btn" onclick="sendChat()">➤</button>
+        </div>
+    </div>
+
+    <script src="js/image_data.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+
+</html>
