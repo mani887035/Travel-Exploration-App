@@ -158,9 +158,11 @@ const DEST_IMAGES = {
     "https://upload.wikimedia.org/wikipedia/commons/5/53/Nilgai_group_at_Little_Rann_of_kutch.JPG"
   ],
   "Vellore": [
-    "img/placeholder.jpg",
-    "img/placeholder.jpg",
-    "img/placeholder.jpg"
+    "img/vellore.jpg",
+    "img/vellore-1.jpg",
+    "img/vellore-2.jpg",
+    "img/vellore-3.jpg",
+    "img/vellore_real_new_1.jpg"
   ],
   "Kodaikanal": [
     "img/kodaikanal_real_1.jpg",

@@ -272,7 +272,7 @@ function performSearch(q) {
                 imgSrc = DEST_IMAGES[d.name][0];
             }
             return `
-          <a class="search-result-item" href="destination.html?id=${d.id}">
+          <a class="search-result-item" href="destination.html?id=${d.id}" onmousedown="window.location.href='destination.html?id=${d.id}'">
             ${imgSrc ? `<img class="search-result-img" src="${imgSrc}" alt="${d.name}" onerror="this.style.display='none'">` : '<span style="font-size:1.6rem">📍</span>'}
             <div class="search-result-info">
               <div class="name">${d.name}</div>
