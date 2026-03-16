@@ -25,7 +25,7 @@ function setLoading(btnId, loading) {
 }
 
 // ── Redirect if already logged in ─────────────
-if (api.isLoggedIn()) window.location.href = 'home.html';
+if (api.isLoggedIn()) window.location.href = 'index.html';
 
 // Handle token from OAuth redirect (query param)
 const urlParams = new URLSearchParams(window.location.search);
@@ -37,7 +37,7 @@ if (oauthToken) {
         headers: { 'Authorization': 'Bearer ' + oauthToken }
     }).then(r => r.json()).then(user => {
         localStorage.setItem('user', JSON.stringify(user));
-        window.location.href = 'home.html';
+        window.location.href = 'index.html';
     });
 }
 
@@ -60,7 +60,7 @@ async function handleLogin(e) {
         }
         const data = await res.json();
         api.saveAuth(data);
-        window.location.href = 'home.html';
+        window.location.href = 'index.html';
     } catch (err) {
         showAlert('Cannot connect to server. Is the backend running?');
     } finally {
@@ -95,7 +95,7 @@ async function handleRegister(e) {
         if (!res.ok) { showAlert('Registration failed. Please try again.'); return; }
         const data = await res.json();
         api.saveAuth(data);
-        window.location.href = 'home.html';
+        window.location.href = 'index.html';
     } catch (err) {
         showAlert('Cannot connect to server. Is the backend running?');
     } finally {

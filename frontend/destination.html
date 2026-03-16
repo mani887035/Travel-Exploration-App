@@ -18,20 +18,12 @@
 
     <nav class="navbar">
         <div class="nav-inner">
-            <a href="home.html" class="nav-brand">✈️ Wanderlust India</a>
+            <a href="index.html" class="nav-brand">✈️ Wanderlust India</a>
             <div class="nav-actions">
-                <a href="home.html" class="nav-link">← Back to Explore</a>
+                <a href="index.html" class="nav-link">← Back to Explore</a>
                 <a href="wishlist.html" class="nav-btn wishlist-btn">❤️ <span class="badge"
                         id="wishlist-badge">0</span></a>
-                <div class="user-avatar-wrap" onclick="toggleUserMenu()">
-                    <div class="user-avatar" id="user-avatar">U</div>
-                    <div class="user-menu hidden" id="user-menu">
-                        <div class="user-name" id="user-menu-name">User</div>
-                        <hr />
-                        <a href="wishlist.html">❤️ My Wishlist</a>
-                        <button onclick="logout()">🚪 Logout</button>
-                    </div>
-                </div>
+
             </div>
         </div>
     </nav>
@@ -135,6 +127,8 @@
         </div>
     </div>
 
+    <script src="js/destinations_data.js"></script>
+    <script src="js/image_data.js"></script>
     <script src="js/api.js"></script>
     <script src="js/destination.js"></script>
     <script src="js/chatbot.js"></script>

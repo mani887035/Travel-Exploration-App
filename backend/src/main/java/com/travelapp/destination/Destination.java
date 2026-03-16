@@ -42,10 +42,10 @@ public class Destination {
     @Column(name = "nearby_attractions", columnDefinition = "TEXT")
     private String nearbyAttractions;
 
-    @Column(precision = 9, scale = 6)
+    @Column(precision = 9, scale = 6, columnDefinition = "DECIMAL(9,6)")
     private BigDecimal latitude;
 
-    @Column(precision = 9, scale = 6)
+    @Column(precision = 9, scale = 6, columnDefinition = "DECIMAL(9,6)")
     private BigDecimal longitude;
 
     @Column(name = "popularity_score", nullable = false)

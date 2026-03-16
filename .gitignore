@@ -1,9 +1,10 @@
-# Maven
-backend/target/
-backend/*.log
+# Backend (not needed for static site)
+backend/
+*.py
+temp_test/
 
 # IDE
-.vscode/settings.json
+.vscode/
 *.class
 *.iml
 .idea/
@@ -14,5 +15,4 @@ Thumbs.db
 
 # Logs
 *.log
-backend/backend-error.log
-backend/backend-error2.log
+error.log

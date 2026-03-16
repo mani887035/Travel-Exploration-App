@@ -1,39 +1,31 @@
-/* wishlist.js — Wishlist page */
+/* wishlist.js — Wishlist page (fully static, localStorage-only) */
 
-if (!api.requireAuth()) throw new Error('Not authenticated');
+const FOOD_EMOJIS_WL = ['🏔️', '🏖️', '🌿', '🏰', '⛵', '🕌', '🦁', '🌸', '🏛️', '🌊'];
+const SEASON_ICONS_WL = { SUMMER: '🌞', WINTER: '❄️', MONSOON: '🌧️', ALL_SEASON: '✨' };
 
-const FOOD_EMOJIS = ['🏔️', '🏖️', '🌿', '🏰', '⛵', '🕌', '🦁', '🌸', '🏛️', '🌊'];
-const SEASON_ICONS = { SUMMER: '🌞', WINTER: '❄️', MONSOON: '🌧️', ALL_SEASON: '✨' };
-
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
     initNavUser();
-    await loadWishlist();
+    loadWishlist();
 });
 
-async function loadWishlist() {
-    try {
-        const res = await api.fetch('/wishlist');
-        if (!res.ok) throw new Error('Failed to load');
-        const items = await res.json();
+function loadWishlist() {
+    const items = api.getWishlistDestinations();
 
-        const countEl = document.getElementById('wishlist-count');
-        const emptyEl = document.getElementById('empty-state');
-        const grid = document.getElementById('wishlist-grid');
+    const countEl = document.getElementById('wishlist-count');
+    const emptyEl = document.getElementById('empty-state');
+    const grid = document.getElementById('wishlist-grid');
 
-        countEl.textContent = `${items.length} place${items.length !== 1 ? 's' : ''} saved`;
+    countEl.textContent = `${items.length} place${items.length !== 1 ? 's' : ''} saved`;
 
-        if (!items.length) {
-            emptyEl.classList.remove('hidden');
-            grid.innerHTML = '';
-            return;
-        }
-
-        emptyEl.classList.add('hidden');
+    if (!items.length) {
+        emptyEl.classList.remove('hidden');
         grid.innerHTML = '';
-        items.forEach((d, i) => grid.appendChild(createWishlistCard(d, i)));
-    } catch (e) {
-        console.error('Wishlist load error', e);
+        return;
     }
+
+    emptyEl.classList.add('hidden');
+    grid.innerHTML = '';
+    items.forEach((d, i) => grid.appendChild(createWishlistCard(d, i)));
 }
 
 function createWishlistCard(d, idx) {
@@ -42,20 +34,26 @@ function createWishlistCard(d, idx) {
     div.id = `card-${d.id}`;
     const seasons = d.season ? d.season.split(',') : [];
 
+    // Get image from DEST_IMAGES or fallback to imageUrl
+    let imgSrc = d.imageUrl;
+    if (typeof DEST_IMAGES !== 'undefined' && DEST_IMAGES[d.name] && DEST_IMAGES[d.name][0]) {
+        imgSrc = DEST_IMAGES[d.name][0];
+    }
+
     div.innerHTML = `
     <div class="card-image-wrap">
-      ${d.imageUrl
-            ? `<img src="${d.imageUrl}" alt="${d.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      ${imgSrc
+            ? `<img src="${imgSrc}" alt="${d.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
             : ''}
-      <div class="card-image-placeholder" ${d.imageUrl ? 'style="display:none"' : ''}>
-        ${FOOD_EMOJIS[idx % FOOD_EMOJIS.length]}
+      <div class="card-image-placeholder" ${imgSrc ? 'style="display:none"' : ''}>
+        ${FOOD_EMOJIS_WL[idx % FOOD_EMOJIS_WL.length]}
       </div>
       <span class="card-state-badge">${d.state}</span>
       <button class="card-wishlist-btn saved" onclick="event.stopPropagation(); removeFromWishlist(${d.id})" title="Remove from wishlist">❤️</button>
     </div>
     <div class="card-body">
       <div class="card-seasons">
-        ${seasons.map(s => `<span class="season-chip chip-${s.trim()}">${SEASON_ICONS[s.trim()] || ''} ${s.trim().replace('_', ' ')}</span>`).join('')}
+        ${seasons.map(s => `<span class="season-chip chip-${s.trim()}">${SEASON_ICONS_WL[s.trim()] || ''} ${s.trim().replace('_', ' ')}</span>`).join('')}
       </div>
       <div class="card-name">${d.name}</div>
       <div class="card-exp">${d.travelExperience || ''}</div>
@@ -72,16 +70,12 @@ function createWishlistCard(d, idx) {
     return div;
 }
 
-async function removeFromWishlist(id) {
-    try {
-        const res = await api.fetch(`/wishlist/${id}`, { method: 'DELETE' });
-        if (res.ok || res.status === 204) {
-            const card = document.getElementById(`card-${id}`);
-            card.style.opacity = '0'; card.style.transform = 'scale(0.9)';
-            card.style.transition = 'all 0.3s';
-            setTimeout(() => { card.remove(); refreshCount(); }, 300);
-        }
-    } catch (e) { console.error('Remove failed', e); }
+function removeFromWishlist(id) {
+    api.removeFromWishlist(id);
+    const card = document.getElementById(`card-${id}`);
+    card.style.opacity = '0'; card.style.transform = 'scale(0.9)';
+    card.style.transition = 'all 0.3s';
+    setTimeout(() => { card.remove(); refreshCount(); }, 300);
 }
 
 function refreshCount() {

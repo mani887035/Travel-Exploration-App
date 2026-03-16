@@ -17,17 +17,10 @@
 
     <nav class="navbar">
         <div class="nav-inner">
-            <a href="home.html" class="nav-brand">✈️ Wanderlust India</a>
+            <a href="index.html" class="nav-brand">✈️ Wanderlust India</a>
             <div class="nav-actions">
-                <a href="home.html" class="nav-link">← Explore</a>
-                <div class="user-avatar-wrap" onclick="toggleUserMenu()">
-                    <div class="user-avatar" id="user-avatar">U</div>
-                    <div class="user-menu hidden" id="user-menu">
-                        <div class="user-name" id="user-menu-name">User</div>
-                        <hr />
-                        <button onclick="logout()">🚪 Logout</button>
-                    </div>
-                </div>
+                <a href="index.html" class="nav-link">← Explore</a>
+
             </div>
         </div>
     </nav>
@@ -43,13 +36,15 @@
             <div class="empty-icon">🗺️</div>
             <h2>Your wishlist is empty</h2>
             <p>Start exploring destinations and save your favourites!</p>
-            <a href="home.html" class="btn-primary"
+            <a href="index.html" class="btn-primary"
                 style="display:inline-block;text-decoration:none;padding:12px 32px">Explore Destinations</a>
         </div>
 
         <div class="destinations-grid" id="wishlist-grid"></div>
     </main>
 
+    <script src="js/destinations_data.js"></script>
+    <script src="js/image_data.js"></script>
     <script src="js/api.js"></script>
     <script src="js/wishlist.js"></script>
 </body>

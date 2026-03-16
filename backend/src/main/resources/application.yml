@@ -5,6 +5,11 @@ spring:
   application:
     name: travel-app
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
+
   # H2 in-memory DB for development (switch to MySQL in production)
   datasource:
     url: jdbc:h2:mem:traveldb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
@@ -31,26 +36,6 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID:your-google-client-id}
-            client-secret: ${GOOGLE_CLIENT_SECRET:your-google-client-secret}
-            scope:
-              - openid
-              - email
-              - profile
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-          facebook:
-            client-id: ${FACEBOOK_APP_ID:your-facebook-app-id}
-            client-secret: ${FACEBOOK_APP_SECRET:your-facebook-app-secret}
-            scope:
-              - email
-              - public_profile
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-
   web:
     cors:
       allowed-origins: "*"
@@ -72,4 +57,4 @@ gemini:
 logging:
   level:
     com.travelapp: DEBUG
-    org.springframework.security: WARN
+    org.springframework.security: INFO

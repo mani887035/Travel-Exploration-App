@@ -21,6 +21,7 @@ public class GeminiClient {
     public GeminiClient(WebClient.Builder webClientBuilder,
             @Value("${gemini.api.key}") String apiKey,
             @Value("${gemini.api.url}") String apiUrl) {
+        super();
         this.webClient = webClientBuilder.build();
         this.apiKey = apiKey;
         this.apiUrl = apiUrl;

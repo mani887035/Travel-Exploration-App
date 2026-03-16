@@ -1,6 +1,5 @@
-/* home.js — Home page: hero slider, season/state filters, destination cards */
-
-if (!api.requireAuth()) throw new Error('Not authenticated');
+/* home.js — Home page: hero slider, season/state filters, destination cards
+   Fully static — no backend API calls needed! */
 
 let currentPage = 0;
 let currentSeason = '';
@@ -12,28 +11,33 @@ const FOOD_EMOJIS = ['🍛', '🍱', '🥘', '🍲', '🫕', '🥗', '🍜', '�
 const SEASON_ICONS = { SUMMER: '🌞', WINTER: '❄️', MONSOON: '🌧️', ALL_SEASON: '✨' };
 
 // ── INIT ───────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
+window.addEventListener('DOMContentLoaded', () => {
     initNavUser();
-    await Promise.all([loadFeaturedHero(), loadStates(), loadWishlistCount()]);
-    await loadDestinations();
+    loadFeaturedHero();
+    loadStates();
+    loadWishlistCount();
+    loadDestinations();
 });
 
 // ── HERO SLIDER ────────────────────────────────
-async function loadFeaturedHero() {
+function loadFeaturedHero() {
     try {
-        const res = await api.fetch('/destinations/featured');
-        const items = await res.json();
+        const items = api.getFeaturedDestinations();
         const slider = document.getElementById('hero-slider');
         const dots = document.getElementById('hero-dots');
-        const title = document.getElementById('hero-title');
-        const sub = document.getElementById('hero-sub');
 
         if (!items.length) return;
 
         items.slice(0, 5).forEach((d, i) => {
             const slide = document.createElement('div');
             slide.className = `hero-slide ${i === 0 ? 'active' : ''}`;
-            if (d.imageUrl) slide.style.backgroundImage = `url('${d.imageUrl}')`;
+
+            // Use DEST_IMAGES first, then imageUrl
+            let heroImg = d.imageUrl;
+            if (typeof DEST_IMAGES !== 'undefined' && DEST_IMAGES[d.name] && DEST_IMAGES[d.name][0]) {
+                heroImg = DEST_IMAGES[d.name][0];
+            }
+            if (heroImg) slide.style.backgroundImage = `url('${heroImg}')`;
             slide.dataset.name = d.name;
             slide.dataset.exp = d.travelExperience;
             slider.appendChild(slide);
@@ -52,7 +56,7 @@ async function loadFeaturedHero() {
 function startHeroSlider(items) {
     let idx = 0;
     heroInterval = setInterval(() => {
-        idx = (idx + 1) % items.length;
+        idx = (idx + 1) % Math.min(items.length, 5);
         goToSlide(idx, items);
     }, 5000);
 }
@@ -71,10 +75,9 @@ function updateHeroText(d) {
 }
 
 // ── STATES DROPDOWN ────────────────────────────
-async function loadStates() {
+function loadStates() {
     try {
-        const res = await api.fetch('/destinations/states');
-        const states = await res.json();
+        const states = api.getStates();
         const sel = document.getElementById('state-select');
         states.forEach(s => {
             const opt = document.createElement('option');
@@ -85,47 +88,41 @@ async function loadStates() {
 }
 
 // ── DESTINATIONS GRID ──────────────────────────
-async function loadDestinations(page = 0) {
+function loadDestinations(page = 0) {
     const grid = document.getElementById('destinations-grid');
     grid.innerHTML = Array.from({ length: 6 }, () => '<div class="dest-card skeleton"></div>').join('');
 
-    try {
-        const params = new URLSearchParams({ page, size: 12 });
-        if (currentSeason) params.set('season', currentSeason);
-        if (currentState) params.set('state', currentState);
+    // Small delay for visual effect (shows skeleton briefly)
+    setTimeout(() => {
+        try {
+            const data = api.getFilteredDestinations({
+                season: currentSeason,
+                state: currentState,
+                page,
+                size: 12
+            });
 
-        const res = await api.fetch(`/destinations?${params}`);
-        const data = await res.json();
+            totalPages = data.totalPages;
+            currentPage = data.currentPage;
 
-        totalPages = data.totalPages;
-        currentPage = data.currentPage;
+            document.getElementById('results-count').textContent =
+                `${data.totalElements} destination${data.totalElements !== 1 ? 's' : ''} found`;
 
-        document.getElementById('results-count').textContent =
-            `${data.totalElements} destination${data.totalElements !== 1 ? 's' : ''} found`;
+            if (!data.content.length) {
+                grid.innerHTML = '<div style="color:var(--text-muted);grid-column:1/-1;padding:40px;text-align:center;">No destinations found for this filter 😕</div>';
+                return;
+            }
 
-        if (!data.content.length) {
-            grid.innerHTML = '<div style="color:var(--text-muted);grid-column:1/-1;padding:40px;text-align:center;">No destinations found for this filter 😕</div>';
-            return;
+            const wishlistIds = new Set(api.getLocalWishlist());
+            grid.innerHTML = '';
+            data.content.forEach(d => grid.appendChild(createCard(d, wishlistIds)));
+            renderPagination();
+
+        } catch (e) {
+            console.error('Destinations load error', e);
+            grid.innerHTML = '<div style="color:var(--danger);grid-column:1/-1;padding:40px;text-align:center;">Failed to load destinations.</div>';
         }
-
-        const wishlistSet = await getWishlistIds();
-        grid.innerHTML = '';
-        data.content.forEach(d => grid.appendChild(createCard(d, wishlistSet)));
-        renderPagination();
-
-    } catch (e) {
-        console.error('Destinations load error', e);
-        grid.innerHTML = '<div style="color:var(--danger);grid-column:1/-1;padding:40px;text-align:center;">Failed to load destinations. Is the backend running?</div>';
-    }
-}
-
-async function getWishlistIds() {
-    try {
-        const res = await api.fetch('/wishlist');
-        if (!res.ok) return new Set();
-        const items = await res.json();
-        return new Set(items.map(d => d.id));
-    } catch { return new Set(); }
+    }, 200);
 }
 
 function createCard(d, savedSet) {
@@ -134,12 +131,22 @@ function createCard(d, savedSet) {
     const seasons = d.season ? d.season.split(',') : [];
     const isSaved = savedSet.has(d.id);
 
+    let photos = DEST_IMAGES && DEST_IMAGES[d.name] ? [...DEST_IMAGES[d.name]] : [];
+    if (photos.length === 0 && d.imageUrl) photos.push(d.imageUrl);
+    if (photos.length === 0) photos.push('img/placeholder.jpg');
+
+    const sliderHtml = photos.map((url, i) =>
+        `<img src="${url}" alt="${d.name}" loading="lazy" class="card-slide ${i === 0 ? 'active' : ''}" onerror="this.style.display='none'">`
+    ).join('');
+
     div.innerHTML = `
-    <div class="card-image-wrap">
-      ${d.imageUrl
-            ? `<img src="${d.imageUrl}" alt="${d.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-            : ''}
-      <div class="card-image-placeholder" ${d.imageUrl ? 'style="display:none"' : ''}>
+    <div class="card-image-wrap card-slider-wrap">
+      ${sliderHtml}
+      <div class="card-slider-nav">
+        <button class="slider-btn prev" onclick="event.stopPropagation(); window.slideCard(this, -1)">❮</button>
+        <button class="slider-btn next" onclick="event.stopPropagation(); window.slideCard(this, 1)">❯</button>
+      </div>
+      <div class="card-image-placeholder" style="display:none">
         ${FOOD_EMOJIS[d.id % FOOD_EMOJIS.length]}
       </div>
       <span class="card-state-badge">${d.state}</span>
@@ -169,28 +176,24 @@ function createCard(d, savedSet) {
 }
 
 // ── WISHLIST TOGGLE ────────────────────────────
-async function toggleCardWishlist(id) {
+function toggleCardWishlist(id) {
     const btn = document.getElementById(`wl-${id}`);
     const isSaved = btn.classList.contains('saved');
-    const method = isSaved ? 'DELETE' : 'POST';
-    try {
-        const res = await api.fetch(`/wishlist/${id}`, { method });
-        if (res.ok || res.status === 204 || res.status === 201 || res.status === 409) {
-            btn.classList.toggle('saved', !isSaved);
-            btn.textContent = !isSaved ? '❤️' : '♡';
-            loadWishlistCount();
-        }
-    } catch (e) { console.error('Wishlist toggle failed', e); }
+
+    if (isSaved) {
+        api.removeFromWishlist(id);
+    } else {
+        api.addToWishlist(id);
+    }
+
+    btn.classList.toggle('saved', !isSaved);
+    btn.textContent = !isSaved ? '❤️' : '♡';
+    loadWishlistCount();
 }
 
-async function loadWishlistCount() {
-    try {
-        const res = await api.fetch('/wishlist/count');
-        if (!res.ok) return;
-        const data = await res.json();
-        const badge = document.getElementById('wishlist-badge');
-        if (badge) badge.textContent = data.count;
-    } catch { }
+function loadWishlistCount() {
+    const badge = document.getElementById('wishlist-badge');
+    if (badge) badge.textContent = api.getWishlistCount();
 }
 
 // ── FILTERS ────────────────────────────────────
@@ -241,23 +244,28 @@ function debounceSearch(q) {
     clearTimeout(searchTimeout);
     const resultsEl = document.getElementById('search-results');
     if (!q || q.length < 2) { resultsEl.classList.add('hidden'); return; }
-    searchTimeout = setTimeout(() => performSearch(q), 350);
+    searchTimeout = setTimeout(() => performSearch(q), 200);
 }
 
-async function performSearch(q) {
+function performSearch(q) {
     const resultsEl = document.getElementById('search-results');
     try {
-        const res = await api.fetch(`/destinations/search?q=${encodeURIComponent(q)}`);
-        const items = await res.json();
+        const items = api.searchDestinations(q);
         if (!items.length) { resultsEl.classList.add('hidden'); return; }
-        resultsEl.innerHTML = items.slice(0, 6).map(d => `
-      <a class="search-result-item" href="destination.html?id=${d.id}">
-        ${d.imageUrl ? `<img class="search-result-img" src="${d.imageUrl}" alt="${d.name}" onerror="this.style.display='none'">` : '<span style="font-size:1.6rem">📍</span>'}
-        <div class="search-result-info">
-          <div class="name">${d.name}</div>
-          <div class="state">${d.state} · ${d.travelExperience}</div>
-        </div>
-      </a>`).join('');
+        resultsEl.innerHTML = items.slice(0, 6).map(d => {
+            let imgSrc = d.imageUrl;
+            if (typeof DEST_IMAGES !== 'undefined' && DEST_IMAGES[d.name] && DEST_IMAGES[d.name][0]) {
+                imgSrc = DEST_IMAGES[d.name][0];
+            }
+            return `
+          <a class="search-result-item" href="destination.html?id=${d.id}">
+            ${imgSrc ? `<img class="search-result-img" src="${imgSrc}" alt="${d.name}" onerror="this.style.display='none'">` : '<span style="font-size:1.6rem">📍</span>'}
+            <div class="search-result-info">
+              <div class="name">${d.name}</div>
+              <div class="state">${d.state} · ${d.travelExperience}</div>
+            </div>
+          </a>`;
+        }).join('');
         resultsEl.classList.remove('hidden');
     } catch (e) { console.error('Search failed', e); }
 }
@@ -265,3 +273,17 @@ async function performSearch(q) {
 document.getElementById('search-input')?.addEventListener('blur', () => {
     setTimeout(() => document.getElementById('search-results').classList.add('hidden'), 200);
 });
+
+// ── SLIDER SCRIPT ────────────────────────────────
+window.slideCard = function(btn, dir) {
+    const wrap = btn.closest('.card-slider-wrap');
+    const slides = Array.from(wrap.querySelectorAll('img.card-slide')).filter(img => img.style.display !== 'none');
+    if (slides.length <= 1) return;
+    
+    let activeIdx = 0;
+    slides.forEach((s, i) => { if (s.classList.contains('active')) activeIdx = i; });
+    
+    slides[activeIdx].classList.remove('active');
+    let nextIdx = (activeIdx + dir + slides.length) % slides.length;
+    slides[nextIdx].classList.add('active');
+};

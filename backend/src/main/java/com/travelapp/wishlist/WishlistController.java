@@ -9,6 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,12 @@ public class WishlistController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Destination>> getWishlist(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<Destination>> getWishlist(
+            @AuthenticationPrincipal Object principal) {
+        // Guest mode: return empty list if not authenticated
+        if (!(principal instanceof User user)) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
         List<Destination> destinations = wishlistRepository
                 .findByUserOrderByAddedAtDesc(user)
                 .stream()
@@ -36,21 +42,39 @@ public class WishlistController {
     }
 
     @GetMapping("/check/{destinationId}")
-    public ResponseEntity<?> checkSaved(@AuthenticationPrincipal User user,
-            @PathVariable Long destinationId) {
-        boolean saved = wishlistRepository.existsByUserIdAndDestinationId(user.getId(), destinationId);
-        return ResponseEntity.ok(Map.of("isSaved", saved));
+    public ResponseEntity<?> checkSaved(
+            @AuthenticationPrincipal Object principal,
+            @PathVariable("destinationId") Long destinationId) {
+        try {
+            // Guest mode: always return not saved
+            if (!(principal instanceof User user)) {
+                return ResponseEntity.ok(Map.of("isSaved", false, "debug", "not a user instance " + (principal != null ? principal.getClass().getName() : "null")));
+            }
+            boolean saved = wishlistRepository.existsByUserIdAndDestinationId(user.getId(), destinationId);
+            return ResponseEntity.ok(Map.of("isSaved", saved));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage(), "stack", e.toString()));
+        }
     }
 
     @GetMapping("/count")
-    public ResponseEntity<?> getCount(@AuthenticationPrincipal User user) {
+    public ResponseEntity<?> getCount(@AuthenticationPrincipal Object principal) {
+        // Guest mode: return count of 0
+        if (!(principal instanceof User user)) {
+            return ResponseEntity.ok(Map.of("count", 0));
+        }
         long count = wishlistRepository.countByUserId(user.getId());
         return ResponseEntity.ok(Map.of("count", count));
     }
 
     @PostMapping("/{destinationId}")
-    public ResponseEntity<?> addToWishlist(@AuthenticationPrincipal User user,
-            @PathVariable Long destinationId) {
+    public ResponseEntity<?> addToWishlist(
+            @AuthenticationPrincipal Object principal,
+            @PathVariable("destinationId") Long destinationId) {
+        if (!(principal instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Please log in to save destinations"));
+        }
         if (wishlistRepository.existsByUserIdAndDestinationId(user.getId(), destinationId)) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "Already in wishlist"));
@@ -68,8 +92,13 @@ public class WishlistController {
 
     @DeleteMapping("/{destinationId}")
     @Transactional
-    public ResponseEntity<?> removeFromWishlist(@AuthenticationPrincipal User user,
-            @PathVariable Long destinationId) {
+    public ResponseEntity<?> removeFromWishlist(
+            @AuthenticationPrincipal Object principal,
+            @PathVariable("destinationId") Long destinationId) {
+        if (!(principal instanceof User user)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Please log in to manage wishlist"));
+        }
         wishlistRepository.deleteByUserIdAndDestinationId(user.getId(), destinationId);
         return ResponseEntity.noContent().build();
     }
