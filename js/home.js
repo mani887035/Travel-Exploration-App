@@ -17,6 +17,16 @@ window.addEventListener('DOMContentLoaded', () => {
     loadStates();
     loadWishlistCount();
     loadDestinations();
+
+    // Handle Enter key in search
+    document.getElementById('search-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const firstResult = document.querySelector('.search-result-item');
+            if (firstResult) {
+                window.location.href = firstResult.getAttribute('href');
+            }
+        }
+    });
 });
 
 // ── HERO SLIDER ────────────────────────────────
