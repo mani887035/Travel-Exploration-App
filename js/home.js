@@ -17,16 +17,6 @@ window.addEventListener('DOMContentLoaded', () => {
     loadStates();
     loadWishlistCount();
     loadDestinations();
-
-    // Handle Enter key in search
-    document.getElementById('search-input')?.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const firstResult = document.querySelector('.search-result-item');
-            if (firstResult) {
-                window.location.href = firstResult.getAttribute('href');
-            }
-        }
-    });
 });
 
 // ── HERO SLIDER ────────────────────────────────
@@ -255,6 +245,18 @@ function renderPagination() {
 }
 
 // ── SEARCH ─────────────────────────────────────
+window.handleSearchSubmit = function(e) {
+    if (e) e.preventDefault();
+    const q = document.getElementById('search-input').value;
+    if (!q) return;
+    
+    // If there's an exact match in results, go there
+    const results = api.searchDestinations(q);
+    if (results.length > 0) {
+        window.location.href = `destination.html?id=${results[0].id}`;
+    }
+};
+
 let searchTimeout;
 function debounceSearch(q) {
     clearTimeout(searchTimeout);

@@ -22,12 +22,12 @@
     <nav class="navbar" id="navbar">
         <div class="nav-inner">
             <a href="index.html" class="nav-brand">✈️ Wanderlust India</a>
-            <div class="nav-search">
+            <form class="nav-search" onsubmit="handleSearchSubmit(event)">
                 <span class="search-icon">🔍</span>
                 <input type="text" id="search-input" placeholder="Search destinations, states..."
-                    oninput="debounceSearch(this.value)" />
+                    oninput="debounceSearch(this.value)" autocomplete="off" />
                 <div class="search-results hidden" id="search-results"></div>
-            </div>
+            </form>
             <div class="nav-actions">
                 <a href="wishlist.html" class="nav-btn wishlist-btn" title="My Wishlist">
                     ❤️ <span class="badge" id="wishlist-badge">0</span>
