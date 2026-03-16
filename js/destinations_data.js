@@ -595,5 +595,22 @@ const DESTINATIONS = [
     longitude: 78.2084,
     popularityScore: 8.0,
     isFeatured: false
+  },
+  {
+    id: 36,
+    name: "Vellore",
+    state: "Tamil Nadu",
+    description: "Vellore is an ancient city located on the banks of the Palar River, known for its historic Vellore Fort—a 16th-century granite fort surrounded by a deep moat. Inside the fort is the stunning Jalakanteswarar Temple, a masterpiece of Vijayanagara architecture. The city is also world-famous for the Sripuram Golden Temple, which is covered in 1,500 kilograms of pure gold.",
+    shortDescription: "The Fort City featuring the spectacular Golden Temple and historic granite fort.",
+    imageUrl: "img/vellore.jpg",
+    season: "ALL_SEASON",
+    avgCost2d1nInr: 2500,
+    travelExperience: "Heritage & Pilgrimage",
+    localFood: '["Ambur Biryani","Makkan Peda","Vellore Mullu Murukku","Palkova","Filter Coffee"]',
+    nearbyAttractions: '["Vellore Fort","Sripuram Golden Temple","Jalakanteswarar Temple","Amirthi Zoological Park"]',
+    latitude: 12.9165,
+    longitude: 79.1325,
+    popularityScore: 8.4,
+    isFeatured: true
   }
 ];

@@ -109,7 +109,13 @@ function loadDestinations(page = 0) {
                 `${data.totalElements} destination${data.totalElements !== 1 ? 's' : ''} found`;
 
             if (!data.content.length) {
-                grid.innerHTML = '<div style="color:var(--text-muted);grid-column:1/-1;padding:40px;text-align:center;">No destinations found for this filter 😕</div>';
+                grid.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🗺️</div>
+                    <div class="empty-title">No destinations found</div>
+                    <p>Try adjusting your filters or search keywords to find more places.</p>
+                    <button class="clear-filters-btn" onclick="clearFilters()">Clear All Filters</button>
+                </div>`;
                 return;
             }
 
@@ -251,7 +257,15 @@ function performSearch(q) {
     const resultsEl = document.getElementById('search-results');
     try {
         const items = api.searchDestinations(q);
-        if (!items.length) { resultsEl.classList.add('hidden'); return; }
+        if (!items.length) {
+            resultsEl.innerHTML = `
+            <div class="search-no-results">
+                <span>🔍</span>
+                <div>No matches found for "${q}"</div>
+            </div>`;
+            resultsEl.classList.remove('hidden');
+            return;
+        }
         resultsEl.innerHTML = items.slice(0, 6).map(d => {
             let imgSrc = d.imageUrl;
             if (typeof DEST_IMAGES !== 'undefined' && DEST_IMAGES[d.name] && DEST_IMAGES[d.name][0]) {
@@ -287,3 +301,12 @@ window.slideCard = function(btn, dir) {
     let nextIdx = (activeIdx + dir + slides.length) % slides.length;
     slides[nextIdx].classList.add('active');
 };
+
+function clearFilters() {
+    currentSeason = '';
+    currentState = '';
+    document.querySelectorAll('.season-tab').forEach(t => t.classList.toggle('active', t.textContent.includes('All')));
+    const stateSelect = document.getElementById('state-select');
+    if (stateSelect) stateSelect.value = '';
+    loadDestinations(0);
+}
