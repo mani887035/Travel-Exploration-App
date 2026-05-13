@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,46 +6,84 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Explore India — Wanderlust India</title>
+
     <meta name="description"
-        content="Explore 200+ Indian tourist destinations filtered by season, state, and travel experience. Save your favourites and chat with our AI travel assistant." />
+        content="Explore 200+ Indian tourist destinations filtered by season, state, and travel experience." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
         rel="stylesheet" />
+
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/home.css" />
     <link rel="stylesheet" href="css/chatbot.css" />
+
+    <style>
+        /* WATERMARK PROTECTION */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 55px;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.06);
+            z-index: 9999;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        body {
+            transition: filter 0.3s ease;
+        }
+    </style>
 </head>
 
 <body class="dark-body">
+
+    <!-- WATERMARK -->
+    <div class="watermark">Screenshot Edukatha Da Potta</div>
 
     <!-- NAV -->
     <nav class="navbar" id="navbar">
         <div class="nav-inner">
             <a href="index.html" class="nav-brand">✈️ Wanderlust India</a>
+
             <form class="nav-search" onsubmit="handleSearchSubmit(event)">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" placeholder="Search destinations, states..."
-                    oninput="debounceSearch(this.value)" autocomplete="off" />
+
+                <input type="text"
+                    id="search-input"
+                    placeholder="Search destinations, states..."
+                    oninput="debounceSearch(this.value)"
+                    autocomplete="off" />
+
                 <div class="search-results hidden" id="search-results"></div>
             </form>
+
             <div class="nav-actions">
                 <a href="wishlist.html" class="nav-btn wishlist-btn" title="My Wishlist">
                     ❤️ <span class="badge" id="wishlist-badge">0</span>
                 </a>
-
             </div>
         </div>
     </nav>
 
-    <!-- HERO BANNER -->
+    <!-- HERO SECTION -->
     <section class="hero-section">
         <div class="hero-slider" id="hero-slider">
-            <!-- Populated by JS -->
+            <!-- JS Dynamic Content -->
         </div>
+
         <div class="hero-overlay">
             <h1 class="hero-title" id="hero-title">Discover India</h1>
-            <p class="hero-sub" id="hero-sub">Explore breathtaking destinations curated by season</p>
+            <p class="hero-sub" id="hero-sub">
+                Explore breathtaking destinations curated by season
+            </p>
+
             <div class="hero-dots" id="hero-dots"></div>
         </div>
     </section>
@@ -52,93 +91,195 @@
     <!-- MAIN CONTENT -->
     <main class="main-content">
 
-        <!-- Season Filter -->
+        <!-- SEASON FILTER -->
         <section class="section-header">
             <h2 class="section-title">Explore by Season</h2>
+
             <div class="season-tabs" id="season-tabs">
-                <button class="season-tab active" data-season="" onclick="filterSeason(this, '')">🌍 All</button>
-                <button class="season-tab" data-season="SUMMER" onclick="filterSeason(this, 'SUMMER')">🌞
-                    Summer</button>
-                <button class="season-tab" data-season="WINTER" onclick="filterSeason(this, 'WINTER')">❄️
-                    Winter</button>
-                <button class="season-tab" data-season="MONSOON" onclick="filterSeason(this, 'MONSOON')">🌧️
-                    Monsoon</button>
-                <button class="season-tab" data-season="ALL_SEASON" onclick="filterSeason(this, 'ALL_SEASON')">✨ All
-                    Season</button>
+                <button class="season-tab active" data-season="" onclick="filterSeason(this, '')">
+                    🌍 All
+                </button>
+
+                <button class="season-tab" data-season="SUMMER"
+                    onclick="filterSeason(this, 'SUMMER')">
+                    🌞 Summer
+                </button>
+
+                <button class="season-tab" data-season="WINTER"
+                    onclick="filterSeason(this, 'WINTER')">
+                    ❄️ Winter
+                </button>
+
+                <button class="season-tab" data-season="MONSOON"
+                    onclick="filterSeason(this, 'MONSOON')">
+                    🌧️ Monsoon
+                </button>
+
+                <button class="season-tab" data-season="ALL_SEASON"
+                    onclick="filterSeason(this, 'ALL_SEASON')">
+                    ✨ All Season
+                </button>
             </div>
         </section>
 
-        <!-- State Filter -->
+        <!-- STATE FILTER -->
         <div class="filter-bar">
             <select class="state-select" id="state-select" onchange="filterState(this.value)">
                 <option value="">All States</option>
             </select>
-            <span class="results-count" id="results-count">Loading destinations...</span>
+
+            <span class="results-count" id="results-count">
+                Loading destinations...
+            </span>
         </div>
 
-        <!-- Destinations Grid -->
+        <!-- DESTINATIONS GRID -->
         <div class="destinations-grid" id="destinations-grid">
-            <!-- skeleton loaders -->
+
             <div class="dest-card skeleton"></div>
             <div class="dest-card skeleton"></div>
             <div class="dest-card skeleton"></div>
             <div class="dest-card skeleton"></div>
             <div class="dest-card skeleton"></div>
             <div class="dest-card skeleton"></div>
+
         </div>
 
-        <!-- Pagination -->
+        <!-- PAGINATION -->
         <div class="pagination" id="pagination"></div>
 
     </main>
 
-    <!-- CHATBOT WIDGET -->
+    <!-- CHATBOT -->
     <div class="chatbot-fab" id="chatbot-fab" onclick="toggleChatbot()" title="AI Travel Assistant">
         <span class="fab-icon">🤖</span>
         <span class="fab-pulse"></span>
     </div>
 
     <div class="chatbot-panel hidden" id="chatbot-panel">
+
         <div class="chatbot-header">
             <div class="chatbot-title">
                 <span class="chatbot-avatar">🤖</span>
+
                 <div>
                     <strong>Travel AI</strong>
                     <span class="chatbot-status">Online · Powered by Gemini</span>
                 </div>
             </div>
+
             <button class="chatbot-close" onclick="toggleChatbot()">✕</button>
         </div>
+
         <div class="chatbot-messages" id="chatbot-messages">
+
             <div class="msg-ai">
                 <span class="msg-avatar">🤖</span>
+
                 <div class="msg-bubble">
-                    Namaste! 🙏 I'm your AI travel guide for India. Ask me about the best places to visit, seasonal
-                    recommendations, costs, local food, or anything about our destinations!
+                    Namaste! 🙏 I'm your AI travel guide for India.
                 </div>
             </div>
-            <div class="chat-suggestions" id="chat-suggestions">
-                <button onclick="askSuggestion('Best places to visit in winter?')">❄️ Best in Winter?</button>
-                <button onclick="askSuggestion('Cheap budget destinations in India?')">💰 Budget Trips?</button>
-                <button onclick="askSuggestion('Best hill stations in India?')">🏔️ Hill Stations?</button>
-                <button onclick="askSuggestion('Where to go during monsoon?')">🌧️ Monsoon Picks?</button>
-            </div>
+
         </div>
-        <div class="chatbot-typing hidden" id="chatbot-typing">
-            <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
-        </div>
+
         <div class="chatbot-input-row">
-            <input type="text" id="chatbot-input" placeholder="Ask about any Indian destination..."
+            <input type="text"
+                id="chatbot-input"
+                placeholder="Ask about any Indian destination..."
                 onkeydown="if(event.key==='Enter') sendChat()" />
+
             <button class="chat-send-btn" onclick="sendChat()">➤</button>
         </div>
+
     </div>
 
+
+    <!-- JAVASCRIPT FILES -->
     <script src="js/destinations_data.js"></script>
     <script src="js/image_data.js"></script>
     <script src="js/api.js"></script>
     <script src="js/home.js"></script>
     <script src="js/chatbot.js"></script>
+
+
+    <!-- SECURITY PROTECTION SCRIPTS -->
+
+    <script>
+
+        // DISABLE RIGHT CLICK
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+            alert("Right click is disabled on this website.");
+        });
+
+
+        // BLOCK DEVELOPER SHORTCUTS
+        document.addEventListener("keydown", function (e) {
+
+            // F12
+            if (e.key === "F12") {
+                e.preventDefault();
+            }
+
+            // CTRL + SHIFT + I
+            if (e.ctrlKey && e.shiftKey && e.key === "I") {
+                e.preventDefault();
+            }
+
+            // CTRL + SHIFT + J
+            if (e.ctrlKey && e.shiftKey && e.key === "J") {
+                e.preventDefault();
+            }
+
+            // CTRL + U
+            if (e.ctrlKey && e.key === "u") {
+                e.preventDefault();
+            }
+
+            // CTRL + S
+            if (e.ctrlKey && e.key === "s") {
+                e.preventDefault();
+            }
+
+        });
+
+
+        // DETECT PRINT SCREEN
+        document.addEventListener("keyup", function (e) {
+
+            if (e.key === "PrintScreen") {
+
+                navigator.clipboard.writeText("");
+
+                alert("Screenshots are restricted on this website.");
+            }
+
+        });
+
+
+        // BLUR SCREEN WHEN TAB CHANGES
+        document.addEventListener("visibilitychange", function () {
+
+            if (document.hidden) {
+                document.body.style.filter = "blur(20px)";
+            }
+            else {
+                document.body.style.filter = "blur(0px)";
+            }
+
+        });
+
+
+        // OPTIONAL: DISABLE TEXT SELECTION
+        document.addEventListener("selectstart", function (e) {
+            e.preventDefault();
+        });
+
+    </script>
+
 </body>
 
 </html>
+
+* ✅ Improved secure UI structure
